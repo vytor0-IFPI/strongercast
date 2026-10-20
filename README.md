@@ -17,8 +17,6 @@
 
 <p align="center">
   <a href="https://vytor0-ifpi.github.io/strongercast/">🌐 Ver site</a> ·
-  <a href="#-episódios">🎬 Episódios</a> ·
-  <a href="#-rodar-local">💻 Rodar local</a>
 </p>
 
 ---
@@ -49,38 +47,6 @@ apresenta o podcast e deixa qualquer pessoa **assistir e ouvir os episódios aqu
 | 01 | Como ser um jovem forte nessa geração? | Pastora Vanessa | **Estreia22/10/2026** — vídeo em breve |
 
 
-## ➕ Adicionar um episódio
-
-Tudo acontece em **um arquivo só**: [`episodios.js`](episodios.js).
-
-1. Abra `episodios.js`.
-2. **Copie** um bloco `{ ... }` inteiro (o mais recente fica **primeiro** na lista).
-3. **Edite**: `num`, `titulo`, `convidado`, `data`.
-4. **Links**: cole o ID do vídeo (o trecho depois de `v=` no link do YouTube) e o
-   ID do episódio no Spotify (depois de `episode/`). Enquanto estiverem vazios
-   (`""`), o site mostra "em breve".
-5. **Salve e faça push** — o site atualiza sozinho em ~1 minuto.
-
-## 🚀 Publicar (deploy)
-
-O deploy é **automático**. Toda vez que algo é enviado pra branch `main`, o
-**GitHub Pages** reconstrói e republica o site. Não tem etapa manual.
-
-```bash
-git add .
-git commit -m "feat: adiciona EP02"
-git push origin main
-```
-
-## 💻 Rodar local
-
-Pra ver o site na sua máquina antes de publicar:
-
-```bash
-cd 09-site
-python3 -m http.server 8080
-# abra http://localhost:8080
-```
 
 ## 🗂 Estrutura
 
