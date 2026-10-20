@@ -51,7 +51,7 @@ window.EPISODIOS = [
 /* Links gerais do podcast (rodapé + botões). Troque quando tiver. */
 window.LINKS = {
   youtube:  "",   // ex.: "https://www.youtube.com/@StrongerCast"
-  spotify:  "",   // ex.: "https://open.spotify.com/show/abc123"
+  spotify:  "https://open.spotify.com/show/5pI64OXBjqYYL5hbeM9loA",   // ex.: "https://open.spotify.com/show/abc123"
   instagram:"",   // ex.: "https://instagram.com/strongercast"
   email:    "",   // ex.: "contato@strongercast.com.br"
 };
