@@ -18,7 +18,6 @@
 <p align="center">
   <a href="https://vytor0-ifpi.github.io/strongercast/">🌐 Ver site</a> ·
   <a href="#-episódios">🎬 Episódios</a> ·
-  <a href="#-adicionar-um-episódio">➕ Adicionar EP</a> ·
   <a href="#-rodar-local">💻 Rodar local</a>
 </p>
 
