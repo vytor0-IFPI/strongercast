@@ -31,16 +31,21 @@ window.EPISODIOS = [
     spotifyId: "",   // ex.: "6Jabc123XYZ"
   },
 
-  /* Exemplo de como fica o próximo episódio (apague ao usar):
-  {
-    num: "02",
-    titulo: "Título do EP02 aqui",
-    convidado: "Nome do convidado",
-    data: "29/10/2026",
-    youtubeId: "",
-    spotifyId: "",
-  },
-  */
+  /* ---------- SLOTS PRONTOS: EP02 a EP08 ----------
+     Já estão criados pra você só preencher. Enquanto o
+     `titulo` estiver vazio, o episódio fica INVISÍVEL no
+     site (não aparece card vazio). Coloque o título que ele
+     aparece sozinho, com a animação "em breve" rodando no
+     lugar do vídeo até você colar o youtubeId.
+     Ordem: o mais recente PRIMEIRO (EP08 no topo quando for
+     lançando — ou mantenha a ordem 01→08, tanto faz). */
+  { num: "02", titulo: "", convidado: "", data: "", youtubeId: "", spotifyId: "" },
+  { num: "03", titulo: "", convidado: "", data: "", youtubeId: "", spotifyId: "" },
+  { num: "04", titulo: "", convidado: "", data: "", youtubeId: "", spotifyId: "" },
+  { num: "05", titulo: "", convidado: "", data: "", youtubeId: "", spotifyId: "" },
+  { num: "06", titulo: "", convidado: "", data: "", youtubeId: "", spotifyId: "" },
+  { num: "07", titulo: "", convidado: "", data: "", youtubeId: "", spotifyId: "" },
+  { num: "08", titulo: "", convidado: "", data: "", youtubeId: "", spotifyId: "" },
 ];
 
 /* Links gerais do podcast (rodapé + botões). Troque quando tiver. */

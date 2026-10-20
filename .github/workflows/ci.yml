@@ -29,6 +29,9 @@ jobs:
           test -f index.html
           test -f style.css
           test -f assets/logo.png
+          test -f assets/hero-loop.mp4
+          test -f assets/ep-placeholder.mp4
+          test -f assets/ep-placeholder.jpg
 
       - name: Checar links internos do HTML
         run: |

@@ -6,12 +6,18 @@
   var links = window.LINKS || {};
   var lista = document.getElementById("lista-eps");
 
-  /* ---------- episódios ---------- */
-  eps.forEach(function (ep) {
+  /* ---------- episódios ----------
+     Só renderiza quem já tem título (slots sem título =
+     episódio ainda não lançado, fica escondido). */
+  var prontos = eps.filter(function (ep) { return !!ep.titulo; });
+
+  prontos.forEach(function (ep) {
     var art = document.createElement("article");
     art.className = "ep";
 
-    /* vídeo: embed do YouTube se tiver ID; senão, cartão "em breve" */
+    /* vídeo: embed do YouTube se tiver ID; senão, animação
+       "em breve" (assets/ep-placeholder.mp4) tocando até o
+       vídeo real ser linkado */
     var video;
     if (ep.youtubeId) {
       video =
@@ -26,8 +32,11 @@
     } else {
       video =
         '<div class="ep__video ep__video--vazio">' +
+        '<video src="assets/ep-placeholder.mp4" ' +
+        'poster="assets/ep-placeholder.jpg" ' +
+        'muted loop playsinline preload="none" data-espera ' +
+        'aria-label="Vídeo do EP. ' + ep.num + ' em breve"></video>' +
         '<span class="ep__em-breve">EM BREVE</span>' +
-        '<span style="color:#9a9a9a;font-size:.9rem">O vídeo do EP. ' + ep.num + ' entra aqui</span>' +
         '</div>';
     }
 
@@ -66,10 +75,31 @@
     lista.appendChild(art);
   });
 
-  if (eps.length === 0) {
+  if (prontos.length === 0) {
     lista.innerHTML =
       '<p style="color:#9a9a9a">Nenhum episódio cadastrado ainda. ' +
       'Edite <code>episodios.js</code> para adicionar.</p>';
+  }
+
+  /* ---------- animação do placeholder ----------
+     Só roda quando o card está na tela e para quando sai
+     (assim N cards "em breve" não tocam juntos e não
+     engasgam máquinas mais fracas). */
+  var esperas = document.querySelectorAll("video[data-espera]");
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(
+      function (entradas) {
+        entradas.forEach(function (e) {
+          var v = e.target;
+          if (e.isIntersecting) { v.play().catch(function () {}); }
+          else { v.pause(); }
+        });
+      },
+      { rootMargin: "150px 0px" }
+    );
+    esperas.forEach(function (v) { io.observe(v); });
+  } else {
+    esperas.forEach(function (v) { v.play().catch(function () {}); });
   }
 
   /* ---------- rodapé ---------- */
