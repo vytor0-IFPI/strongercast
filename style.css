@@ -207,6 +207,7 @@ a { color: inherit; text-decoration: none; }
 }
 .ep__data { font-size: 0.85rem; color: var(--cinza-esc); font-family: "Noto Sans Mono", monospace; }
 .ep__titulo { font-size: clamp(1.3rem, 3vw, 1.8rem); font-weight: 800; line-height: 1.2; margin-bottom: 0.5rem; }
+.ep__titulo--espera { color: var(--cinza); }
 .ep__convidado { color: var(--ouro-claro); font-weight: 600; margin-bottom: 1.4rem; }
 
 .ep__acoes { display: flex; gap: 0.8rem; flex-wrap: wrap; }

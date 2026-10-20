@@ -7,13 +7,14 @@
   var lista = document.getElementById("lista-eps");
 
   /* ---------- episódios ----------
-     Só renderiza quem já tem título (slots sem título =
-     episódio ainda não lançado, fica escondido). */
-  var prontos = eps.filter(function (ep) { return !!ep.titulo; });
-
-  prontos.forEach(function (ep) {
+     Sem título = episódio ainda não lançado: o card aparece
+     assim mesmo, já como "em breve" (animação do radar +
+     título apagado), e os botões ficam ocultos até a pessoa
+     preencher o título em episodios.js. */
+  eps.forEach(function (ep) {
     var art = document.createElement("article");
     art.className = "ep";
+    var esperando = !ep.titulo;
 
     /* vídeo: embed do YouTube se tiver ID; senão, animação
        "em breve" (assets/ep-placeholder.mp4) tocando até o
@@ -40,7 +41,8 @@
         '</div>';
     }
 
-    /* botões de ação */
+    /* botões de ação (só quando o episódio já foi anunciado
+       com título — slots "em breve" ficam sem botões) */
     var ytUrl = ep.youtubeId
       ? "https://www.youtube.com/watch?v=" + ep.youtubeId
       : (links.youtube || "");
@@ -56,6 +58,14 @@
       return '<span class="btn ' + classe + ' btn--off">' + texto + '</span>';
     }
 
+    var acoes = esperando
+      ? ""
+      : '<div class="ep__acoes">' +
+          btn(ytUrl, "btn--ouro", "Assistir no YouTube") +
+          btn(spUrl, "btn--fantasma", "Ouvir no Spotify") +
+          btn(ep.youtubeId ? ytUrl : "", "btn--fantasma", "Compartilhar") +
+        '</div>';
+
     art.innerHTML =
       video +
       '<div class="ep__corpo">' +
@@ -63,19 +73,17 @@
           '<span class="ep__num">EP. ' + ep.num + '</span>' +
           (ep.data ? '<span class="ep__data">' + ep.data + '</span>' : '') +
         '</div>' +
-        '<h3 class="ep__titulo">' + ep.titulo + '</h3>' +
+        '<h3 class="ep__titulo' + (esperando ? ' ep__titulo--espera' : '') + '">' +
+          (ep.titulo || 'Em breve') +
+        '</h3>' +
         (ep.convidado ? '<p class="ep__convidado">com ' + ep.convidado + '</p>' : '') +
-        '<div class="ep__acoes">' +
-          btn(ytUrl, "btn--ouro", "Assistir no YouTube") +
-          btn(spUrl, "btn--fantasma", "Ouvir no Spotify") +
-          btn(ep.youtubeId ? ytUrl : "", "btn--fantasma", "Compartilhar") +
-        '</div>' +
+        acoes +
       '</div>';
 
     lista.appendChild(art);
   });
 
-  if (prontos.length === 0) {
+  if (eps.length === 0) {
     lista.innerHTML =
       '<p style="color:#9a9a9a">Nenhum episódio cadastrado ainda. ' +
       'Edite <code>episodios.js</code> para adicionar.</p>';

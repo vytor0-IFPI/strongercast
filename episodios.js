@@ -31,14 +31,14 @@ window.EPISODIOS = [
     spotifyId: "",   // ex.: "6Jabc123XYZ"
   },
 
-  /* ---------- SLOTS PRONTOS: EP02 a EP08 ----------
-     Já estão criados pra você só preencher. Enquanto o
-     `titulo` estiver vazio, o episódio fica INVISÍVEL no
-     site (não aparece card vazio). Coloque o título que ele
-     aparece sozinho, com a animação "em breve" rodando no
-     lugar do vídeo até você colar o youtubeId.
-     Ordem: o mais recente PRIMEIRO (EP08 no topo quando for
-     lançando — ou mantenha a ordem 01→08, tanto faz). */
+  /* ---------- SLOTS: EP02 a EP08 ----------
+     Já estão criados e JÁ APARECEM no site como "em breve"
+     (animação do radar no vídeo). Quando for lançar, preencha
+     título/convidado/data; assim que o `titulo` estiver
+     preenchido os botões aparecem. Coloque o `youtubeId` e o
+     vídeo real substitui a animação.
+     Ordem da lista = ordem de exibição (de cima pra baixo).
+     Mantenha o EP01 no topo enquanto for a estreia. */
   { num: "02", titulo: "", convidado: "", data: "", youtubeId: "", spotifyId: "" },
   { num: "03", titulo: "", convidado: "", data: "", youtubeId: "", spotifyId: "" },
   { num: "04", titulo: "", convidado: "", data: "", youtubeId: "", spotifyId: "" },
