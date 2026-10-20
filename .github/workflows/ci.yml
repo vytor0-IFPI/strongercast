@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validar:
+    name: Validar site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Checar sintaxe do JS
+        run: |
+          node --check app.js
+          node --check episodios.js
+
+      - name: Checar arquivos obrigatórios
+        run: |
+          test -f index.html
+          test -f style.css
+          test -f assets/logo.png
+
+      - name: Checar links internos do HTML
+        run: |
+          grep -q 'id="episodios"' index.html
+          grep -q 'id="quem-somos"' index.html
+          grep -q 'src="app.js"' index.html
+          grep -q 'src="episodios.js"' index.html
