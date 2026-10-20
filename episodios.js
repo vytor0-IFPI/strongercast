@@ -27,7 +27,7 @@ window.EPISODIOS = [
     titulo: "Como ser um jovem forte nessa geração?",
     convidado: "Pastora Vanessa",
     data: "22/10/2026",
-    youtubeId: "",   // ex.: "dQw4w9WgXcQ"
+    youtubeId: "ZsmtTq2KrEvvsb2m",   // ex.: "dQw4w9WgXcQ"
     spotifyId: "",   // ex.: "6Jabc123XYZ"
   },
 
