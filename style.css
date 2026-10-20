@@ -14,7 +14,7 @@
   --cinza: #9a9a9a;
   --cinza-esc: #6a6a6a;
   --linha: rgba(200, 145, 42, 0.22);
-  --max: 1080px;
+  --max: 1200px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -81,7 +81,7 @@ a { color: inherit; text-decoration: none; }
   margin: 0 auto;
   padding: clamp(3.5rem, 10vh, 7rem) clamp(1.2rem, 4vw, 3rem) clamp(4rem, 10vh, 7rem);
   display: grid;
-  grid-template-columns: 1fr minmax(240px, 0.82fr);
+  grid-template-columns: 1fr minmax(320px, 1fr);
   gap: clamp(2rem, 5vw, 4.5rem);
   align-items: center;
 }
@@ -236,7 +236,7 @@ a { color: inherit; text-decoration: none; }
   }
   .hero__marca { order: -1; }
   .hero__marca img,
-  .hero__video { max-width: 320px; margin: 0 auto; }
+  .hero__video { max-width: 600px; margin: 0 auto; }
   .hero__sub { max-width: none; }
 }
 
