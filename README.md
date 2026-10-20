@@ -49,8 +49,6 @@ apresenta o podcast e deixa qualquer pessoa **assistir e ouvir os episódios aqu
 |----|--------|-----------|----------|
 | 01 | Como ser um jovem forte nessa geração? | Pastora Vanessa | **Estreia22/10/2026** — vídeo em breve |
 
-> O site já nasceu com o **EP01 pronto** (estrutura e botões). Assim que o vídeo
-> subir no YouTube, é só colar o link — o embed aparece sozinho.
 
 ## ➕ Adicionar um episódio
 
