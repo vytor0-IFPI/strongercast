@@ -5,7 +5,7 @@
 <h1 align="center">Stronger Cast</h1>
 
 <p align="center">
-  <b>Força, fé e futuração pra essa geração.</b><br/>
+  <b>Força, fé e espectativa pra essa geração.</b><br/>
   Site oficial do podcast — quem somos, episódios e links pra ouvir.
 </p>
 
