@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stronger Cast — Podcast</title>
+  <meta name="description" content="Stronger Cast: conversas de fé, fortaleza e futuração pra essa geração. Assista e ouça os episódios aqui, no YouTube ou no Spotify." />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Stronger Cast — Podcast" />
+  <meta property="og:description" content="Conversas de fé, fortaleza e futuração pra essa geração." />
+  <meta property="og:image" content="assets/logo.png" />
+  <meta name="theme-color" content="#141414" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800;900&family=Noto+Sans+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topo">
+    <a class="topo__marca" href="#topo">
+      <img src="assets/logo.png" alt="Stronger Cast" />
+    </a>
+    <nav class="topo__nav">
+      <a href="#quem-somos">Quem somos</a>
+      <a href="#episodios">Episódios</a>
+    </nav>
+  </header>
+
+  <main id="topo">
+    <!-- HERO -->
+    <section class="hero">
+      <p class="kicker">STRONGER CAST · PODCAST</p>
+      <h1 class="hero__titulo">
+        Força, fé e<br />
+        <span class="destaque">futuração</span><br />
+        pra essa geração.
+      </h1>
+      <p class="hero__sub">
+        Conversas de verdade sobre ser firme num mundo que não para.
+        Novo episódio toda semana.
+      </p>
+      <div class="hero__acoes">
+        <a class="btn btn--ouro" href="#episodios">Ver os episódios</a>
+        <a class="btn btn--linha" href="#quem-somos">Quem somos</a>
+      </div>
+    </section>
+
+    <!-- QUEM SOMOS -->
+    <section id="quem-somos" class="quem">
+      <p class="kicker">QUEM SOMOS</p>
+      <h2 class="secao__titulo">
+        O Stronger Cast existe pra<br />
+        <span class="destaque">reforçar quem anda cansado.</span>
+      </h2>
+      <div class="quem__texto">
+        <p>
+          O Stronger Cast é um podcast nascido pra essa geração. Aqui a gente
+          bate um papo honesto sobre fé, decisões, relacionamentos, futuro e
+          tudo que a gente enfrenta quando tenta ser firme num mundo que puxa
+          pra baixo.
+        </p>
+        <p>
+          O intuito é simples: <strong>reforçar</strong>. Cada episódio é uma
+          conversa que termina com alguma luz acesa — com convidados que vivem
+          a mesma realidade e trazem experiências de verdade, sem papo furado.
+        </p>
+        <p>
+          É pra você que está no meio da corrida, com dúvidas, sonhos e
+          aquela sensação de que dá pra ser mais. Bem-vindo ao time.
+        </p>
+      </div>
+    </section>
+
+    <!-- EPISÓDIOS -->
+    <section id="episodios" class="eps">
+      <p class="kicker">EPISÓDIOS</p>
+      <h2 class="secao__titulo">
+        Assista e ouça <span class="destaque">aqui mesmo</span>,<br />
+        ou siga pro canal.
+      </h2>
+      <div id="lista-eps" class="eps__lista">
+        <!-- preenchido por app.js a partir de episodios.js -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <div class="rodape__marca">
+      <img src="assets/logo.png" alt="Stronger Cast" />
+      <p>Força, fé e futuração pra essa geração.</p>
+    </div>
+    <nav class="rodape__links" id="rodape-links">
+      <!-- preenchido por app.js -->
+    </nav>
+    <p class="rodape__nota">© <span id="ano"></span> Stronger Cast · Todos os direitos reservados</p>
+  </footer>
+
+  <script src="episodios.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
