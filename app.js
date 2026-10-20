@@ -6,6 +6,33 @@
   var links = window.LINKS || {};
   var lista = document.getElementById("lista-eps");
 
+  /* ---------- links do YouTube/Spotify ----------
+     Nos campos `youtube` e `spotify` você cola o LINK INTEIRO
+     do jeito que veio do navegador ou do botão "Compartilhar"
+     — o site extrai o ID sozinho. ID puro também funciona. */
+  function idDoVideo(link) {
+    if (!link) return "";
+    var s = String(link).trim();
+    var m =
+      s.match(/[?&]v=([\w-]{6,})/) ||               // youtube.com/watch?v=...
+      s.match(/youtu\.be\/([\w-]{6,})/) ||          // youtu.be/...
+      s.match(/(?:shorts|embed|live)\/([\w-]{6,})/); // Shorts, embed, live
+    if (m) return m[1];
+    if (/^[\w-]{6,}$/.test(s)) return s;            // já é só o ID
+    console.warn("Stronger Cast: link do YouTube não entendi:", link);
+    return "";
+  }
+
+  function idDoEpisodioSpotify(link) {
+    if (!link) return "";
+    var s = String(link).trim();
+    var m = s.match(/episode\/([\w-]+)/);
+    if (m) return m[1];
+    if (/^[\w-]{16,}$/.test(s)) return s;           // ID puro (~22 caracteres)
+    console.warn("Stronger Cast: link do Spotify não entendi:", link);
+    return "";
+  }
+
   /* ---------- episódios ----------
      Sem título = episódio ainda não lançado: o card aparece
      assim mesmo, já como "em breve" (animação do radar +
@@ -16,15 +43,21 @@
     art.className = "ep";
     var esperando = !ep.titulo;
 
-    /* vídeo: embed do YouTube se tiver ID; senão, animação
+    /* aceita o LINK inteiro (watch, youtu.be, Shorts) ou o ID
+       puro — quem extrai é a função idDoVideo lá em cima. O
+       campo antigo (youtubeId/spotifyId) também ainda vale. */
+    var idYt = idDoVideo(ep.youtube || ep.youtubeId);
+    var idSp = idDoEpisodioSpotify(ep.spotify || ep.spotifyId);
+
+    /* vídeo: embed do YouTube se tiver link; senão, animação
        "em breve" (assets/ep-placeholder.mp4) tocando até o
        vídeo real ser linkado */
     var video;
-    if (ep.youtubeId) {
+    if (idYt) {
       video =
         '<div class="ep__video">' +
         '<iframe ' +
-        'src="https://www.youtube-nocookie.com/embed/' + ep.youtubeId + '" ' +
+        'src="https://www.youtube-nocookie.com/embed/' + idYt + '" ' +
         'title="EP. ' + ep.num + ' — ' + ep.titulo + '" ' +
         'loading="lazy" ' +
         'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ' +
@@ -43,11 +76,11 @@
 
     /* botões de ação (só quando o episódio já foi anunciado
        com título — slots "em breve" ficam sem botões) */
-    var ytUrl = ep.youtubeId
-      ? "https://www.youtube.com/watch?v=" + ep.youtubeId
+    var ytUrl = idYt
+      ? "https://www.youtube.com/watch?v=" + idYt
       : (links.youtube || "");
-    var spUrl = ep.spotifyId
-      ? "https://open.spotify.com/episode/" + ep.spotifyId
+    var spUrl = idSp
+      ? "https://open.spotify.com/episode/" + idSp
       : (links.spotify || "");
 
     function btn(url, classe, texto) {
@@ -63,7 +96,7 @@
       : '<div class="ep__acoes">' +
           btn(ytUrl, "btn--ouro", "Assistir no YouTube") +
           btn(spUrl, "btn--fantasma", "Ouvir no Spotify") +
-          btn(ep.youtubeId ? ytUrl : "", "btn--fantasma", "Compartilhar") +
+          btn(idYt ? ytUrl : "", "btn--fantasma", "Compartilhar") +
         '</div>';
 
     art.innerHTML =
