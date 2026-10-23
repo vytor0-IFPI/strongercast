@@ -24,6 +24,19 @@ function carregarEpisodiosRemotos() {
     return numero < 10 ? "0" + numero : String(numero);
   }
 
+  /* O render (inalterado) injeta título, convidado e data como HTML. Esses
+     valores vêm do banco, então são escapados AQUI — a migração é a fronteira.
+     `&` primeiro, senão as entidades geradas depois seriam reescapadas.
+     URLs (youtube/spotify) NÃO passam por aqui: são link, não HTML. */
+  function escaparHtml(valor) {
+    return String(valor === undefined || valor === null ? "" : valor)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   /* Converte a linha do Supabase no formato que o render já consome
      (mesmos campos de episodios.js). A tabela não tem `num`: a numeração
      vem da ordem — a consulta é data.desc, então a linha mais antiga é a 01. */
@@ -33,9 +46,9 @@ function carregarEpisodiosRemotos() {
       var linha = linhas[i];
       if (!linha || typeof linha !== "object") continue;
       migradas.push({
-        titulo: texto(linha.titulo),
-        convidado: texto(linha.convidado),
-        data: dataDoSite(linha.data),
+        titulo: escaparHtml(texto(linha.titulo)),
+        convidado: escaparHtml(texto(linha.convidado)),
+        data: escaparHtml(dataDoSite(linha.data)),
         youtube: texto(linha.youtube),
         spotify: texto(linha.spotify),
         mp3: texto(linha.mp3),

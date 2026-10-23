@@ -238,6 +238,36 @@ teste("linha remota com youtu.be: embed resolve pelo extrator do site", async fu
   );
 });
 
+/* ---------- 6. dados remotos hostis não viram HTML ---------- */
+
+teste("linha remota com HTML no título/convidado/data: escapa na migração", async function () {
+  var tituloMau = '<img src=x onerror="alert(\'x\')">';
+  var convidadoMau = '<script>alert("x")</script>';
+  var dataMau = '22/10/2026<script>alert(2)</script>';
+  var mundo = criarMundo(
+    fetchOk([linha({ titulo: tituloMau, convidado: convidadoMau, data: dataMau })])
+  );
+  await mundo.pronto;
+
+  assert.strictEqual(mundo.lista.children.length, 1);
+  var html = mundo.lista.children[0].innerHTML;
+
+  assert.ok(html.indexOf("<img") === -1, "nenhuma tag <img> injetada");
+  assert.ok(html.indexOf("<script") === -1, "nenhuma tag <script> injetada");
+  assert.ok(
+    html.indexOf("&lt;img src=x onerror=&quot;alert(&#39;x&#39;)&quot;&gt;") !== -1,
+    "título escapado (inclui aspas simples e duplas)"
+  );
+  assert.ok(
+    html.indexOf("&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;") !== -1,
+    "convidado escapado"
+  );
+  assert.ok(
+    html.indexOf("22/10/2026&lt;script&gt;alert(2)&lt;/script&gt;") !== -1,
+    "data fora do formato ISO também é escapada"
+  );
+});
+
 /* ---------- execução sequencial ---------- */
 
 (async function () {
