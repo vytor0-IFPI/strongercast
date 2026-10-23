@@ -38,6 +38,7 @@ jobs:
           test -f assets/hero-loop.mp4
           test -f assets/ep-placeholder.mp4
           test -f assets/ep-placeholder.jpg
+          test -f app/strongercast.apk
 
       - name: Checar links internos do HTML
         run: |
