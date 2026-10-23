@@ -23,6 +23,12 @@ jobs:
         run: |
           node --check app.js
           node --check episodios.js
+          node --check supabase-config.js
+          node --check testes/test-fonte-dados.js
+
+      - name: Rodar testes
+        run: |
+          node testes/test-fonte-dados.js
 
       - name: Checar arquivos obrigatórios
         run: |

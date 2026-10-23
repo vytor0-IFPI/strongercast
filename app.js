@@ -1,8 +1,108 @@
-/* Stronger Cast — renderiza episódios e links a partir de episodios.js */
-(function () {
+/* Stronger Cast — renderiza episódios e links.
+   A fonte é o Supabase (episódios publicados); se o servidor falhar, demorar
+   mais de 3 s ou devolver lista vazia, cai no arquivo episodios.js. */
+
+/* Interface do site: Promise<Array|null>. `null` em QUALQUER falha e também
+   para lista vazia — quem chama decide o fallback (window.EPISODIOS). */
+function carregarEpisodiosRemotos() {
+  var TEMPO_LIMITE_MS = 3000;
+
+  function texto(valor) {
+    if (valor === undefined || valor === null) return "";
+    return String(valor).trim();
+  }
+
+  /* O Supabase guarda `data` como 2026-10-22; o site mostra 22/10/2026. */
+  function dataDoSite(valor) {
+    var s = texto(valor);
+    var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return m[3] + "/" + m[2] + "/" + m[1];
+    return s;
+  }
+
+  function doisDigitos(numero) {
+    return numero < 10 ? "0" + numero : String(numero);
+  }
+
+  /* Converte a linha do Supabase no formato que o render já consome
+     (mesmos campos de episodios.js). A tabela não tem `num`: a numeração
+     vem da ordem — a consulta é data.desc, então a linha mais antiga é a 01. */
+  function migrarLinhas(linhas) {
+    var migradas = [];
+    for (var i = 0; i < linhas.length; i++) {
+      var linha = linhas[i];
+      if (!linha || typeof linha !== "object") continue;
+      migradas.push({
+        titulo: texto(linha.titulo),
+        convidado: texto(linha.convidado),
+        data: dataDoSite(linha.data),
+        youtube: texto(linha.youtube),
+        spotify: texto(linha.spotify),
+        mp3: texto(linha.mp3),
+        capa: texto(linha.capa),
+        publicado: linha.publicado !== false
+      });
+    }
+    if (!migradas.length) return null;
+
+    var total = migradas.length;
+    for (var j = 0; j < total; j++) migradas[j].num = doisDigitos(total - j);
+    return migradas;
+  }
+
+  var config = (typeof window !== "undefined" && window.SUPABASE_CONFIG) || {};
+  var base = texto(config.url).replace(/\/+$/, "");
+  var chave = texto(config.anonKey);
+  if (!base || !chave || typeof fetch !== "function") {
+    return Promise.resolve(null);
+  }
+
+  var endereco =
+    base + "/rest/v1/episodes?select=*&publicado=eq.true&order=data.desc";
+
+  var busca = Promise.resolve()
+    .then(function () {
+      return fetch(endereco, {
+        headers: {
+          apikey: chave,
+          "Accept-Profile": "public"
+        }
+      });
+    })
+    .then(function (resposta) {
+      if (!resposta || !resposta.ok) return null;
+      return resposta.json();
+    })
+    .then(function (linhas) {
+      // Vazio NUNCA pode esvaziar o site: trata como falha e cai no arquivo.
+      if (!Array.isArray(linhas) || linhas.length === 0) return null;
+      return migrarLinhas(linhas);
+    })
+    .catch(function () {
+      return null; // rede, JSON inválido, resposta estranha...
+    });
+
+  var limite = new Promise(function (_, rejeitar) {
+    setTimeout(function () {
+      rejeitar(new Error("Tempo esgotado ao buscar os episódios."));
+    }, TEMPO_LIMITE_MS);
+  });
+
+  return Promise.race([busca, limite]).then(
+    function (valor) {
+      return valor;
+    },
+    function () {
+      return null; // timeout
+    }
+  );
+}
+
+var pronto = (async function () {
   "use strict";
 
-  var eps = window.EPISODIOS || [];
+  var remotas = await carregarEpisodiosRemotos();
+  var eps = remotas || window.EPISODIOS || [];
   var links = window.LINKS || {};
   var lista = document.getElementById("lista-eps");
 
@@ -162,3 +262,8 @@
   /* ---------- ano ---------- */
   document.getElementById("ano").textContent = new Date().getFullYear();
 })();
+
+if (typeof window !== "undefined") {
+  window.carregarEpisodiosRemotos = carregarEpisodiosRemotos;
+  window.SCAppPronto = pronto; // os testes esperam o render terminar
+}
