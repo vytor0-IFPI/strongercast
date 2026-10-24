@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#141414">
+  <!-- PWA (rodada 3): instalável no iPhone via Safari → Compartilhar →
+       Adicionar à Tela de Início. O iOS ignora o manifest e usa o
+       apple-touch-icon + as metas apple-mobile-web-app-*. -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Stronger Cast</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body class="app-corpo">
+  <!-- Splash (vinheta Pulso-B): toca em TODA abertura. Fica por cima da
+       tela de conta; some no `ended`, no erro do vídeo ou no tempo limite
+       (o CSS também tem um fallback próprio caso o JS nem carregue). -->
+  <div id="splash" class="splash" aria-label="Abrindo Stronger Cast">
+    <video id="splash-video" class="splash__video"
+           src="assets/vineta-pulso-B.mp4"
+           autoplay muted playsinline preload="auto"></video>
+  </div>
+
+  <main class="app">
+    <!-- Conta: criar conta / entrar -->
+    <section id="conta" class="vista vista--conta" data-vista="conta" aria-labelledby="conta-titulo">
+      <div class="conta">
+        <img class="conta__logo" src="assets/logo.png" alt="Stronger Cast" width="180" height="101">
+
+        <h1 id="conta-titulo" class="conta__titulo">Criar conta</h1>
+        <p id="conta-dica" class="conta__dica">
+          Crie sua conta para acompanhar os episódios do Stronger Cast.
+        </p>
+
+        <div class="conta__abas" role="tablist" aria-label="Criar conta ou entrar">
+          <button type="button" id="aba-criar" class="aba aba--ativa" role="tab"
+                  aria-selected="true" aria-controls="form-conta">Criar conta</button>
+          <button type="button" id="aba-entrar" class="aba" role="tab"
+                  aria-selected="false" aria-controls="form-conta">Já tenho conta</button>
+        </div>
+
+        <form id="form-conta" class="form-conta" novalidate>
+          <div class="campo">
+            <label class="campo__rotulo" for="conta-email">E-mail</label>
+            <input id="conta-email" class="campo__entrada" type="email" name="email"
+                   inputmode="email" autocomplete="email" autocapitalize="none"
+                   spellcheck="false" placeholder="voce@exemplo.com" required>
+          </div>
+
+          <div class="campo">
+            <label class="campo__rotulo" for="conta-senha">Senha</label>
+            <span class="campo-senha">
+              <input id="conta-senha" class="campo__entrada campo__entrada--senha"
+                     type="password" name="senha" autocomplete="new-password"
+                     minlength="6" placeholder="mínimo de 6 caracteres" required>
+              <button type="button" id="conta-olho" class="campo-senha__olho"
+                      aria-label="Mostrar senha" aria-pressed="false">
+                <svg class="olho" viewBox="0 0 24 24" width="22" height="22"
+                     aria-hidden="true" focusable="false">
+                  <path class="olho__contorno" d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"></path>
+                  <circle class="olho__pupila" cx="12" cy="12" r="3"></circle>
+                  <line class="olho__risco" x1="4" y1="4" x2="20" y2="20"></line>
+                </svg>
+              </button>
+            </span>
+          </div>
+
+          <p id="conta-erro" class="conta__erro" role="alert" hidden></p>
+
+          <button type="submit" id="conta-enviar" class="botao botao--ouro">Criar conta</button>
+        </form>
+
+        <p class="conta__rodape">Stronger Cast · episódios em vídeo, áudio e podcast</p>
+      </div>
+    </section>
+
+    <!-- Lista: a Task 6 substitui o conteúdo por cards/estados reais -->
+    <section id="lista" class="vista vista--lista" data-vista="lista"
+             aria-label="Episódios" hidden>
+      <header class="lista__topo">
+        <img class="lista__logo" src="assets/logo.png" alt="Stronger Cast" width="120" height="68">
+        <h1 class="lista__titulo">Episódios</h1>
+        <!-- Menu ☰ (rodada 2): Painel e Sua conta saíram do topo e moram aqui. -->
+        <button type="button" id="menu-abrir" class="lista__menu"
+                aria-label="Abrir menu" aria-expanded="false" aria-controls="menu-painel">
+          <span class="lista__menu-risco" aria-hidden="true"></span>
+          <span class="lista__menu-risco" aria-hidden="true"></span>
+          <span class="lista__menu-risco" aria-hidden="true"></span>
+        </button>
+      </header>
+      <p id="lista-status" class="lista__status" role="status">Carregando episódios…</p>
+      <div id="lista-conteudo" class="lista__conteudo"></div>
+    </section>
+
+    <!-- Bíblia (rodada 2): offline, Bíblia Livre (CC BY 3.0). O módulo biblia.js desenha
+         as três telas (livros → capítulos → leitura) dentro de #biblia-conteudo;
+         nenhum livro é carregado antes do capítulo ser aberto. -->
+    <section id="biblia" class="vista vista--biblia" data-vista="biblia"
+             aria-labelledby="biblia-titulo" hidden>
+      <header class="biblia__topo">
+        <button type="button" id="biblia-voltar" class="biblia__voltar">← Voltar</button>
+        <h1 id="biblia-titulo" class="biblia__titulo">Bíblia</h1>
+      </header>
+      <p id="biblia-status" class="biblia__status" role="status" hidden></p>
+      <div id="biblia-conteudo" class="biblia__conteudo"></div>
+    </section>
+
+    <!-- Devocionais (rodada 2): lista pública, mais recente primeiro. O módulo
+         devocionais.js desenha lista e leitor dentro de #devocionais-conteudo. -->
+    <section id="devocionais" class="vista vista--devocionais" data-vista="devocionais"
+             aria-labelledby="devocionais-titulo" hidden>
+      <header class="secao__topo">
+        <button type="button" id="devocionais-voltar" class="secao__voltar">← Voltar</button>
+        <h1 id="devocionais-titulo" class="secao__titulo">Devocionais</h1>
+      </header>
+      <p id="devocionais-status" class="secao__status" role="status" hidden></p>
+      <div id="devocionais-conteudo" class="secao__conteudo"></div>
+    </section>
+
+    <!-- Canais recomendados (rodada 2): grade 2 colunas. Vídeo toca no overlay
+         existente; canal abre fora pelo @capacitor/browser. O módulo canais.js
+         desenha a grade dentro de #canais-conteudo. -->
+    <section id="canais" class="vista vista--canais" data-vista="canais"
+             aria-labelledby="canais-titulo" hidden>
+      <header class="secao__topo">
+        <button type="button" id="canais-voltar" class="secao__voltar">← Voltar</button>
+        <h1 id="canais-titulo" class="secao__titulo">Canais</h1>
+      </header>
+      <p id="canais-status" class="secao__status" role="status" hidden></p>
+      <div id="canais-conteudo" class="secao__conteudo"></div>
+    </section>
+
+    <!-- Painel do admin (Task 9): só é exibido quando sessao.eAdmin() é true.
+         O app.js bloqueia a troca de vista e o admin.js confere de novo antes
+         de cada escrita; a RLS do Supabase é a barreira final. Rodada 2: abas
+         Episódios · Devocionais · Canais (Episódios é a padrão). -->
+    <section id="admin" class="vista vista--admin" data-vista="admin"
+             aria-labelledby="admin-painel-titulo" hidden>
+      <header class="admin__topo">
+        <button type="button" id="admin-voltar" class="admin__voltar">← Voltar</button>
+        <h1 id="admin-painel-titulo" class="admin__titulo">Painel do admin</h1>
+        <span id="admin-sessao" class="admin__sessao" hidden></span>
+      </header>
+
+      <p id="admin-status" class="admin__status" role="status" hidden></p>
+
+      <div class="admin__abas" role="tablist" aria-label="Seções do painel">
+        <button type="button" id="admin-aba-episodios" class="admin__aba admin__aba--ativa"
+                role="tab" aria-selected="true" aria-controls="admin-painel-episodios">
+          Episódios
+        </button>
+        <button type="button" id="admin-aba-devocionais" class="admin__aba"
+                role="tab" aria-selected="false" aria-controls="admin-painel-devocionais">
+          Devocionais
+        </button>
+        <button type="button" id="admin-aba-canais" class="admin__aba"
+                role="tab" aria-selected="false" aria-controls="admin-painel-canais">
+          Canais
+        </button>
+      </div>
+
+      <div id="admin-painel-episodios" class="admin__painel" role="tabpanel"
+           aria-labelledby="admin-aba-episodios">
+        <form id="form-admin" class="form-admin" novalidate>
+          <h2 id="admin-form-titulo" class="form-admin__titulo">Novo episódio</h2>
+          <p class="form-admin__dica">
+            O link do YouTube é obrigatório. O MP3 é opcional (serve para ouvir
+            com a tela travada); sem ele, o episódio abre no vídeo. A capa também
+            é opcional (sem capa, o app usa a imagem do vídeo).
+          </p>
+
+          <input type="hidden" id="admin-id" name="id" value="">
+
+          <div class="campo">
+            <label class="campo__rotulo" for="admin-titulo">Título *</label>
+            <input id="admin-titulo" class="campo__entrada" type="text" name="titulo"
+                   maxlength="160" placeholder="Título do episódio" required
+                   aria-describedby="admin-erro-titulo">
+            <span id="admin-erro-titulo" class="campo__erro" role="alert" hidden></span>
+          </div>
+
+          <div class="campo">
+            <label class="campo__rotulo" for="admin-convidado">Convidado</label>
+            <input id="admin-convidado" class="campo__entrada" type="text" name="convidado"
+                   maxlength="120" placeholder="Quem participa deste episódio?">
+          </div>
+
+          <div class="form-admin__linha">
+            <div class="campo">
+              <label class="campo__rotulo" for="admin-data">Data *</label>
+              <input id="admin-data" class="campo__entrada" type="date" name="data" required
+                     aria-describedby="admin-erro-data">
+              <span id="admin-erro-data" class="campo__erro" role="alert" hidden></span>
+            </div>
+
+            <div class="campo">
+              <label class="campo__rotulo" for="admin-youtube">Link do YouTube *</label>
+              <input id="admin-youtube" class="campo__entrada" type="url" name="youtube"
+                     inputmode="url" autocapitalize="none" spellcheck="false"
+                     placeholder="https://youtu.be/…" required
+                     aria-describedby="admin-erro-youtube">
+              <span id="admin-erro-youtube" class="campo__erro" role="alert" hidden></span>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label class="campo__rotulo" for="admin-mp3">Arquivo MP3 (opcional)</label>
+            <input id="admin-mp3" class="campo__arquivo" type="file" name="mp3"
+                   accept=".mp3,audio/mpeg" aria-describedby="admin-mp3-atual admin-erro-mp3">
+            <span id="admin-mp3-atual" class="campo__dica" hidden></span>
+            <span id="admin-erro-mp3" class="campo__erro" role="alert" hidden></span>
+          </div>
+
+          <div class="campo">
+            <label class="campo__rotulo" for="admin-capa">Capa (imagem, opcional)</label>
+            <input id="admin-capa" class="campo__arquivo" type="file" name="capa"
+                   accept="image/*" aria-describedby="admin-capa-atual admin-erro-capa">
+            <span id="admin-capa-atual" class="campo__dica" hidden></span>
+            <span id="admin-erro-capa" class="campo__erro" role="alert" hidden></span>
+          </div>
+
+          <label class="campo--check" for="admin-publicado">
+            <input id="admin-publicado" type="checkbox" name="publicado" checked>
+            <span>Publicado (aparece na lista do app e no site)</span>
+          </label>
+
+          <progress id="admin-progresso" class="admin__progresso" max="100" value="0" hidden></progress>
+          <span id="admin-progresso-texto" class="admin__progresso-texto" role="status" hidden></span>
+
+          <div class="form-admin__acoes">
+            <button type="submit" id="admin-enviar" class="botao botao--ouro">Publicar episódio</button>
+            <button type="button" id="admin-cancelar" class="botao botao--fantasma" hidden>
+              Cancelar edição
+            </button>
+          </div>
+        </form>
+
+        <section class="admin__secao" aria-labelledby="admin-lista-titulo">
+          <h2 id="admin-lista-titulo" class="admin__subtitulo">Episódios</h2>
+          <div id="admin-lista" class="admin__lista"></div>
+        </section>
+      </div>
+
+      <div id="admin-painel-devocionais" class="admin__painel" role="tabpanel"
+           aria-labelledby="admin-aba-devocionais" hidden>
+        <form id="form-admin-devocional" class="form-admin" novalidate>
+          <h2 id="admin-dev-form-titulo" class="form-admin__titulo">Novo devocional</h2>
+          <p class="form-admin__dica">
+            Texto puro, sem imagem nem áudio. O devocional aparece no app na
+            data escolhida, do mais recente para o mais antigo.
+          </p>
+
+          <input type="hidden" id="admin-dev-id" name="id" value="">
+
+          <div class="campo">
+            <label class="campo__rotulo" for="admin-dev-titulo">Título *</label>
+            <input id="admin-dev-titulo" class="campo__entrada" type="text" name="titulo"
+                   maxlength="160" placeholder="Título do devocional" required
+                   aria-describedby="admin-dev-erro-titulo">
+            <span id="admin-dev-erro-titulo" class="campo__erro" role="alert" hidden></span>
+          </div>
+
+          <div class="form-admin__linha">
+            <div class="campo">
+              <label class="campo__rotulo" for="admin-dev-versiculo">Versículo *</label>
+              <input id="admin-dev-versiculo" class="campo__entrada" type="text"
+                     name="versiculo" maxlength="120" placeholder="Hebreus 11.1" required
+                     aria-describedby="admin-dev-erro-versiculo">
+              <span id="admin-dev-erro-versiculo" class="campo__erro" role="alert" hidden></span>
+            </div>
+
+            <div class="campo">
+              <label class="campo__rotulo" for="admin-dev-data">Data *</label>
+              <input id="admin-dev-data" class="campo__entrada" type="date"
+                     name="data" required aria-describedby="admin-dev-erro-data">
+              <span id="admin-dev-erro-data" class="campo__erro" role="alert" hidden></span>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label class="campo__rotulo" for="admin-dev-texto">Texto *</label>
+            <textarea id="admin-dev-texto" class="campo__entrada campo__area"
+                      name="texto" rows="6" placeholder="Escreva o devocional…" required
+                      aria-describedby="admin-dev-erro-texto"></textarea>
+            <span id="admin-dev-erro-texto" class="campo__erro" role="alert" hidden></span>
+          </div>
+
+          <label class="campo--check" for="admin-dev-publicado">
+            <input id="admin-dev-publicado" type="checkbox" name="publicado" checked>
+            <span>Publicado (aparece na lista do app)</span>
+          </label>
+
+          <div class="form-admin__acoes">
+            <button type="submit" id="admin-dev-enviar" class="botao botao--ouro">
+              Publicar devocional
+            </button>
+            <button type="button" id="admin-dev-cancelar" class="botao botao--fantasma" hidden>
+              Cancelar edição
+            </button>
+          </div>
+        </form>
+
+        <section class="admin__secao" aria-labelledby="admin-dev-lista-titulo">
+          <h2 id="admin-dev-lista-titulo" class="admin__subtitulo">Devocionais</h2>
+          <div id="admin-dev-lista" class="admin__lista"></div>
+        </section>
+      </div>
+
+      <div id="admin-painel-canais" class="admin__painel" role="tabpanel"
+           aria-labelledby="admin-aba-canais" hidden>
+        <form id="form-admin-canal" class="form-admin" novalidate>
+          <h2 id="admin-canal-form-titulo" class="form-admin__titulo">Novo canal ou vídeo</h2>
+          <p class="form-admin__dica">
+            Cole um link do YouTube. Vídeo (youtu.be, watch ou Shorts) toca no
+            app; canal (@, /channel/, /c/ ou /user/) abre no YouTube. O tipo é
+            reconhecido pelo link — não precisa escolher.
+          </p>
+
+          <input type="hidden" id="admin-canal-id" name="id" value="">
+
+          <div class="campo">
+            <label class="campo__rotulo" for="admin-canal-titulo">Título *</label>
+            <input id="admin-canal-titulo" class="campo__entrada" type="text" name="titulo"
+                   maxlength="160" placeholder="Título do vídeo ou do canal" required
+                   aria-describedby="admin-canal-erro-titulo">
+            <span id="admin-canal-erro-titulo" class="campo__erro" role="alert" hidden></span>
+          </div>
+
+          <div class="campo">
+            <label class="campo__rotulo" for="admin-canal-link">Link do YouTube *</label>
+            <input id="admin-canal-link" class="campo__entrada" type="url" name="link"
+                   inputmode="url" autocapitalize="none" spellcheck="false"
+                   placeholder="https://www.youtube.com/@canal" required
+                   aria-describedby="admin-canal-erro-link">
+            <span id="admin-canal-erro-link" class="campo__erro" role="alert" hidden></span>
+          </div>
+
+          <div class="campo">
+            <label class="campo__rotulo" for="admin-canal-autor">Canal / autor (opcional)</label>
+            <input id="admin-canal-autor" class="campo__entrada" type="text" name="canal"
+                   maxlength="120" placeholder="Nome que aparece embaixo do título">
+          </div>
+
+          <label class="campo--check" for="admin-canal-publicado">
+            <input id="admin-canal-publicado" type="checkbox" name="publicado" checked>
+            <span>Publicado (aparece na grade do app)</span>
+          </label>
+
+          <div class="form-admin__acoes">
+            <button type="submit" id="admin-canal-enviar" class="botao botao--ouro">
+              Publicar canal
+            </button>
+            <button type="button" id="admin-canal-cancelar" class="botao botao--fantasma" hidden>
+              Cancelar edição
+            </button>
+          </div>
+        </form>
+
+        <section class="admin__secao" aria-labelledby="admin-canal-lista-titulo">
+          <h2 id="admin-canal-lista-titulo" class="admin__subtitulo">Canais recomendados</h2>
+          <div id="admin-canal-lista" class="admin__lista"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <!-- Menu ☰ (design C aprovado): overlay discreto com as seções do app.
+       Os atributos data-vista marcam o DESTINO de cada item; o roteador de
+       vistas só considera section[data-vista], então os botões não são
+       escondidos por definirVista(). Painel/Sua conta mantêm os IDs antigos e
+       os mesmos handlers/gates de antes. -->
+  <div id="menu-painel" class="menu" role="dialog" aria-modal="true"
+       aria-labelledby="menu-titulo" aria-hidden="true" hidden>
+    <div class="menu__quadro">
+      <div class="menu__topo">
+        <span id="menu-titulo" class="menu__titulo">Menu</span>
+        <button type="button" id="menu-fechar" class="menu__fechar">Fechar</button>
+      </div>
+
+      <nav class="menu__itens" aria-label="Seções do app">
+        <button type="button" id="menu-biblia" class="menu__item"
+                data-vista="biblia">Bíblia</button>
+        <button type="button" id="menu-devocionais" class="menu__item"
+                data-vista="devocionais">Devocionais</button>
+        <button type="button" id="menu-canais" class="menu__item"
+                data-vista="canais">Canais</button>
+        <button type="button" id="admin-abrir" class="menu__item menu__item--admin"
+                data-vista="admin" hidden>Painel</button>
+        <button type="button" id="conta-abrir" class="menu__item"
+                data-vista="conta" hidden>Sua conta</button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Player de vídeo (Task 7): o iframe do YouTube nasce dentro do palco e é
+       removido ao fechar (o áudio do vídeo morre junto). -->
+  <div id="player-video" class="player-video" role="dialog" aria-modal="true"
+       aria-label="Player de vídeo" aria-hidden="true" hidden>
+    <div class="player-video__quadro">
+      <div class="player-video__topo">
+        <span class="player-video__rotulo">Stronger Cast</span>
+        <button type="button" id="player-video-fechar" class="player-video__fechar">
+          Fechar
+        </button>
+      </div>
+      <div id="player-video-palco" class="player-video__palco"></div>
+      <!-- Troca manual (23/10): o clique no card abre o vídeo; quem quer o MP3
+           (o áudio que sobrevive à tela travada) toca aqui. Só aparece quando
+           o episódio atual tem MP3. -->
+      <div class="player-video__rodape">
+        <button type="button" id="player-video-ouvir" class="player-video__troca" hidden>
+          Ouvir áudio
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Player de áudio (Task 8): o MP3 continua tocando com a tela travada e
+       mostra play/pause na notificação (foreground service nativo). Fechar
+       pausa e guarda o ponto: reabrir o mesmo episódio retoma de onde parou. -->
+  <div id="player-audio" class="player-audio" role="dialog" aria-modal="true"
+       aria-label="Player de áudio" aria-hidden="true" hidden>
+    <div class="player-audio__quadro">
+      <div class="player-audio__topo">
+        <span class="player-audio__rotulo">Stronger Cast · áudio</span>
+        <button type="button" id="player-audio-fechar" class="player-audio__fechar">
+          Fechar
+        </button>
+      </div>
+
+      <img id="player-audio-capa" class="player-audio__capa" src="assets/ep-placeholder.jpg"
+           alt="Capa do episódio" width="240" height="240">
+
+      <h2 id="player-audio-titulo" class="player-audio__titulo">Episódio</h2>
+      <p id="player-audio-artista" class="player-audio__artista" hidden></p>
+
+      <div class="player-audio__barra-area">
+        <input id="player-audio-barra" class="player-audio__barra" type="range"
+               min="0" max="1000" step="1" value="0" aria-label="Posição do áudio"
+               aria-valuetext="00:00 de 00:00">
+        <div class="player-audio__tempos">
+          <span id="player-audio-atual" class="player-audio__tempo">00:00</span>
+          <span id="player-audio-duracao" class="player-audio__tempo">00:00</span>
+        </div>
+      </div>
+
+      <button type="button" id="player-audio-play" class="player-audio__play"
+              aria-label="Pausar áudio">Pausar</button>
+
+      <!-- Troca manual para o vídeo do MESMO episódio. Só aparece quando o
+           episódio tem link do YouTube. -->
+      <button type="button" id="player-audio-troca" class="player-audio__troca" hidden>
+        Assistir vídeo
+      </button>
+    </div>
+  </div>
+
+  <!-- Ajustes da própria conta (senha/e-mail). Mesmo padrão do #player-video:
+       overlay fixo, fechar explícito, alvos de 44px e botão voltar do Android.
+       Só é aberto quando há sessão ativa (o atalho "Sua conta" some deslogado). -->
+  <div id="conta-ajustes" class="conta-ajustes" role="dialog" aria-modal="true"
+       aria-label="Sua conta" aria-hidden="true" hidden>
+    <div class="conta-ajustes__quadro">
+      <div class="conta-ajustes__topo">
+        <span class="conta-ajustes__rotulo">Sua conta</span>
+        <button type="button" id="conta-ajustes-fechar" class="conta-ajustes__fechar">
+          Fechar
+        </button>
+      </div>
+
+      <form id="form-alterar-senha" class="conta-ajustes__bloco" novalidate>
+        <h2 id="conta-senha-titulo" class="conta-ajustes__titulo">Alterar senha</h2>
+
+        <div class="campo">
+          <label class="campo__rotulo" for="conta-nova-senha">Nova senha</label>
+          <input id="conta-nova-senha" class="campo__entrada" type="password"
+                 name="nova-senha" autocomplete="new-password" minlength="6"
+                 placeholder="mínimo de 6 caracteres" required>
+        </div>
+
+        <div class="campo">
+          <label class="campo__rotulo" for="conta-confirmar-senha">Confirmar nova senha</label>
+          <input id="conta-confirmar-senha" class="campo__entrada" type="password"
+                 name="confirmar-senha" autocomplete="new-password" minlength="6"
+                 placeholder="repita a nova senha" required>
+        </div>
+
+        <p id="conta-senha-erro" class="conta-ajustes__erro" role="alert" hidden></p>
+        <p id="conta-senha-sucesso" class="conta-ajustes__sucesso" role="status" hidden></p>
+
+        <button type="submit" id="conta-senha-enviar" class="botao botao--ouro">
+          Alterar senha
+        </button>
+      </form>
+
+      <form id="form-alterar-email" class="conta-ajustes__bloco" novalidate>
+        <h2 id="conta-email-titulo" class="conta-ajustes__titulo">Alterar e-mail</h2>
+
+        <div class="campo">
+          <label class="campo__rotulo" for="conta-novo-email">Novo e-mail</label>
+          <input id="conta-novo-email" class="campo__entrada" type="email"
+                 name="novo-email" inputmode="email" autocomplete="email"
+                 autocapitalize="none" spellcheck="false"
+                 placeholder="voce@exemplo.com" required>
+        </div>
+
+        <div class="campo">
+          <label class="campo__rotulo" for="conta-confirmar-email">Confirmar novo e-mail</label>
+          <input id="conta-confirmar-email" class="campo__entrada" type="email"
+                 name="confirmar-email" inputmode="email" autocomplete="email"
+                 autocapitalize="none" spellcheck="false"
+                 placeholder="repita o novo e-mail" required>
+        </div>
+
+        <p id="conta-email-erro" class="conta-ajustes__erro" role="alert" hidden></p>
+        <p id="conta-email-sucesso" class="conta-ajustes__sucesso" role="status" hidden></p>
+
+        <button type="submit" id="conta-email-enviar" class="botao botao--ouro">
+          Alterar e-mail
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Ordem obrigatória: vendor → config → extratores → dados → validação → sessão → player → app -->
+
+  <!-- supabase-js 2.118.0 (UMD) vendorizado — jsdelivr @supabase/supabase-js@2.118.0/dist/umd/supabase.js
+       sha256 ee3be8de192b97cb1d73d1e95d6b82bb1f6b658c0f97c4ef757fc331996ed3d3 -->
+  <script src="vendor/supabase.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/extratores.js"></script>
+  <script src="js/dados.js"></script>
+  <script src="js/validacao.js"></script>
+  <script src="js/sessao.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/biblia.js"></script>
+  <script src="js/devocionais.js"></script>
+  <script src="js/canais.js"></script>
+  <script src="js/player-video.js"></script>
+  <script src="js/player-audio.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
