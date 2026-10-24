@@ -51,6 +51,7 @@ window.EPISODIOS = [
   { num: "06", titulo: "", convidado: "", data: "", youtube: "", spotify: "" },
   { num: "07", titulo: "", convidado: "", data: "", youtube: "", spotify: "" },
   { num: "08", titulo: "", convidado: "", data: "", youtube: "", spotify: "" },
+  { num: "09", titulo: "", convidado: "", data: "", youtube: "", spotify: "" },
 ];
 
 /* Links gerais do podcast (rodapé + botões). Troque quando tiver. */
