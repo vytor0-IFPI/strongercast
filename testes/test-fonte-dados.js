@@ -187,7 +187,9 @@ teste("REST falha: cai no arquivo e mantém os 8 cards", async function () {
   var vazios = mundo.lista.children.filter(function (c) {
     return c.innerHTML.indexOf("ep__video--vazio") !== -1;
   });
-  assert.strictEqual(vazios.length, 7, "7 slots em breve continuam no ar");
+  /* Desde26/10 o dono tirou o vídeo do EP01 (youtube vazio), então os 8 cards
+     ficam com a animação "em breve": EP01 com título + 7 slots de exemplo. */
+  assert.strictEqual(vazios.length, 8, "os 8 cards continuam no ar (EP01 sem vídeo + 7 slots)");
 });
 
 /* ---------- 3. REST ok com lista vazia ---------- */
