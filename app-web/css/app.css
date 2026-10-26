@@ -250,6 +250,26 @@ body.app-corpo {
   font-size: 0.9rem;
 }
 
+/* Sessão ativa na vista conta: e-mail + "Sair da conta" (rodada 3.1).
+   Só aparece quando o app mostra o bloco (hidden controlado pelo app.js). */
+.conta__logado {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(232, 194, 116, 0.18);
+  text-align: center;
+}
+
+.conta__logado[hidden] { display: none; }
+
+.conta__logado-email {
+  margin: 0;
+  color: var(--cinza, #9a9a9a);
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+
 .botao {
   min-height: 48px;
   border: 0;
@@ -1150,6 +1170,15 @@ body.player-aberto {
 
 .admin-ep__botao--perigo:hover { background: rgba(217, 83, 79, 0.12); }
 
+/* Apagar de vez (rodada 3.1): vermelho um pouco mais discreto que o
+   "Tirar do ar", porque é a ação sem volta. */
+.admin-ep__botao--apagar {
+  border-color: rgba(217, 83, 79, 0.35);
+  color: #e88b8b;
+}
+
+.admin-ep__botao--apagar:hover { background: rgba(217, 83, 79, 0.18); }
+
 .admin-ep__botao--ouro {
   border-color: transparent;
   background: linear-gradient(135deg, var(--app-ouro-inicio, #c8912a), var(--app-ouro-fim, #e8c274));
@@ -1922,6 +1951,112 @@ body.menu-aberto { overflow: hidden; }
   font-size: 0.74rem;
   line-height: 1.3;
   overflow-wrap: anywhere;
+}
+
+/* ---------- IA Bíblica (26/10) ---------- */
+
+.vista--ia {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: calc(1.2rem + env(safe-area-inset-top, 0px)) 1.15rem
+    calc(1.6rem + env(safe-area-inset-bottom, 0px));
+}
+
+.ia-mensagens {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 32vh;
+  margin-bottom: 1rem;
+}
+
+.ia-msg {
+  max-width: 86%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.ia-msg--usuario {
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+  background: linear-gradient(135deg, var(--app-ouro-inicio, #c8912a), var(--app-ouro-fim, #e8c274));
+  color: #141414;
+  font-weight: 600;
+}
+
+.ia-msg--ia {
+  align-self: flex-start;
+  border: 1px solid rgba(200, 145, 42, 0.35);
+  border-bottom-left-radius: 4px;
+  background: #1e1e1e;
+  color: var(--branco, #f5f3ee);
+}
+
+.ia-msg--pensando {
+  color: var(--cinza, #9a9a9a);
+  font-style: italic;
+}
+
+.ia-erro {
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid rgba(217, 83, 79, 0.4);
+  border-left: 3px solid #d9534f;
+  border-radius: 12px;
+  background: rgba(217, 83, 79, 0.08);
+  color: #ffb3b3;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.ia-campo {
+  display: flex;
+  gap: 0.55rem;
+  align-items: stretch;
+}
+
+.ia-campo__entrada {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.55rem 0.95rem;
+  border: 1px solid rgba(232, 194, 116, 0.35);
+  border-radius: 999px;
+  background: #1e1e1e;
+  color: var(--branco, #f5f3ee);
+  font: inherit;
+  font-size: 0.95rem;
+}
+
+.ia-campo__entrada::placeholder { color: var(--cinza, #9a9a9a); }
+
+.ia-campo__entrada:focus-visible,
+.ia-campo .botao:focus-visible {
+  outline: 2px solid var(--ouro-claro, #e8c274);
+  outline-offset: 2px;
+}
+
+.ia-campo .botao {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0.55rem 1.15rem;
+}
+
+.vista--ia .secao__topo .botao {
+  padding: 0.45rem 0.95rem;
+  font-size: 0.88rem;
+}
+
+.ia-nota {
+  margin-top: 0.8rem;
+  color: var(--cinza, #9a9a9a);
+  font-size: 0.78rem;
+  line-height: 1.4;
 }
 
 /* ---------- telas maiores ---------- */

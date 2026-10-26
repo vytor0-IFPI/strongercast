@@ -564,6 +564,21 @@
         });
     }
 
+    /* Apagar de vez (rodada 3.1): DELETE de verdade, só pelo id. A RLS do
+       Supabase é a barreira final — o gate de admin continua aqui também. */
+    function excluirEm(cliente, tabela, id) {
+      return Promise.resolve()
+        .then(function () {
+          return cliente.from(tabela).delete().eq("id", id);
+        })
+        .then(function (resposta) {
+          if (resposta && resposta.error) {
+            throw new Error(mensagem(resposta.error));
+          }
+          return true;
+        });
+    }
+
     /* Lista crua do painel (inclui rascunhos): order desc pela coluna dada. */
     function listarRegistros(cliente, tabela, coluna) {
       return Promise.resolve()
@@ -700,6 +715,22 @@
         // Escolha do dono registrada no spec: sai do ar, o histórico fica.
         return atualizar(cliente, id, { publicado: false }).then(function () {
           return undefined;
+        });
+      });
+    }
+
+    /* Diferente de tirarDoAr: aqui o episódio some do banco. Sem voltar atrás,
+       a UI exige confirmação antes de chamar esta função. */
+    function excluirEpisodio(id) {
+      return permitido().then(function (admin) {
+        if (!admin) throw new Error(SEM_PERMISSAO);
+        if (!texto(id)) throw new Error("Episódio inválido.");
+
+        var cliente = obterCliente();
+        if (!cliente) throw new Error(SEM_CONEXAO);
+
+        return excluirEm(cliente, "episodes", id).then(function () {
+          return true;
         });
       });
     }
@@ -1251,6 +1282,16 @@
         );
       }
 
+      acoes.appendChild(
+        botaoAcao(
+          "Apagar",
+          "admin-ep__botao--perigo admin-ep__botao--apagar",
+          function () {
+            apagarDaLista(ep);
+          }
+        )
+      );
+
       linha.appendChild(acoes);
       return linha;
     }
@@ -1309,6 +1350,31 @@
         })
         .then(function () {
           definirStatus('"' + (ep.titulo || "Episódio") + '" está publicado.', "ok");
+          return atualizarLista();
+        })
+        .then(function () {
+          recarregarPublica();
+        })
+        .catch(function (erro) {
+          definirStatus(mensagem(erro) || SEM_CONEXAO, "erro");
+        })
+        .then(function () {
+          bloquear(false);
+        });
+    }
+
+    /* Apaga de vez (rodada 3.1). Primeiro toque só pergunta; nada de delete
+       sem confirmação. Sem confirm() disponível, a resposta segura é "não". */
+    function apagarDaLista(ep) {
+      var pergunta = "Apagar este episódio? Não dá pra desfazer.";
+      var confirmou =
+        typeof raiz.confirm === "function" ? raiz.confirm(pergunta) : false;
+      if (!confirmou) return;
+
+      bloquear(true);
+      excluirEpisodio(ep.id)
+        .then(function () {
+          definirStatus('"' + (ep.titulo || "Episódio") + '" foi apagado.', "ok");
           return atualizarLista();
         })
         .then(function () {
@@ -2147,6 +2213,7 @@
       publicar: publicar,
       editar: editar,
       tirarDoAr: tirarDoAr,
+      excluirEpisodio: excluirEpisodio,
       listar: listar,
       publicarDevocional: publicarDevocional,
       editarDevocional: editarDevocional,
@@ -2206,6 +2273,9 @@
     },
     tirarDoAr: function (id) {
       return padrao().tirarDoAr(id);
+    },
+    excluirEpisodio: function (id) {
+      return padrao().excluirEpisodio(id);
     },
     listar: function () {
       return padrao().listar();

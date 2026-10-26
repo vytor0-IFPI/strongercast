@@ -1,8 +1,9 @@
 /* Stronger Cast — boot do app.
    Responsável por: splash da vinheta Pulso-B (toda abertura, nunca bloqueia),
-   menu ☰ (rodada 2: Bíblia · Devocionais · Canais · Painel · Sua conta),
-   troca de vistas (#conta / #lista / #biblia / #devocionais / #canais /
-   #admin), formulário de conta, pré-busca e render da lista (#lista) com os
+   menu ☰ (rodada 2 + IA em 26/10: Bíblia · Devocionais · Canais · Pergunte à
+   Bíblia · Painel · Sua conta), troca de vistas (#conta / #lista / #biblia /
+   #devocionais / #canais / #ia / #admin), formulário de conta, pré-busca e
+   render da lista (#lista) com os
    quatro estados: ok, vazio, erro e cache. Também liga o card aos players: o
    clique abre o vídeo → #player-video (Task 7) primeiro; o áudio (Task 8, MP3
    — único formato que sobrevive à tela travada, com controles na notificação)
@@ -15,7 +16,7 @@
   "use strict";
 
   var doc = raiz.document;
-  var vista = "splash"; // "splash" | "conta" | "lista" | "biblia" | "devocionais" | "canais" | "admin"
+  var vista = "splash"; // "splash" | "conta" | "lista" | "biblia" | "devocionais" | "canais" | "ia" | "admin"
   var modoConta = "criar"; // "criar" | "entrar"
   var splashEncerrada = false;
   var timeoutSplash = null;
@@ -69,6 +70,12 @@
       definirVista("canais");
       var canais = raiz.SCCanais;
       if (canais && typeof canais.aoEntrar === "function") return canais.aoEntrar();
+      return;
+    }
+    if (nome === "ia") {
+      definirVista("ia");
+      var ia = raiz.SCIA;
+      if (ia && typeof ia.aoEntrar === "function") return ia.aoEntrar();
       return;
     }
     if (nome !== "conta" && nome !== "lista") return;
@@ -135,8 +142,21 @@
 
   function atualizarBotaoConta(usuario) {
     var botao = porId("conta-abrir");
-    if (!botao) return;
-    botao.hidden = !usuario;
+    if (botao) botao.hidden = !usuario;
+    atualizarContaLogado(usuario);
+  }
+
+  /* Estado logado dentro da própria vista #conta: mostra o e-mail e o botão
+     de sair. Sem sessão, o bloco some e o formulário entrar/criar segue
+     como sempre. */
+  function atualizarContaLogado(usuario) {
+    var bloco = porId("conta-logado");
+    if (!bloco) return;
+    bloco.hidden = !usuario;
+    var email = porId("conta-logado-email");
+    if (email) {
+      email.textContent = usuario && usuario.email ? usuario.email : "";
+    }
   }
 
   /* ---------- ajustes da conta (senha/e-mail) ---------- */
@@ -499,6 +519,14 @@
       });
     }
 
+    /* IA Bíblica (26/10): item visível para todos, sem gate de sessão. */
+    var ia = porId("menu-ia");
+    if (ia) {
+      ia.addEventListener("click", function () {
+        irPara("ia");
+      });
+    }
+
     if (doc && typeof doc.addEventListener === "function") {
       doc.addEventListener("keydown", function (evento) {
         if (!menuAbertoFlag || !evento) return;
@@ -530,6 +558,14 @@
     if (canais) {
       canais.addEventListener("click", function () {
         var modulo = raiz.SCCanais;
+        if (modulo && typeof modulo.voltar === "function") modulo.voltar();
+      });
+    }
+
+    var ia = porId("ia-voltar");
+    if (ia) {
+      ia.addEventListener("click", function () {
+        var modulo = raiz.SCIA;
         if (modulo && typeof modulo.voltar === "function") modulo.voltar();
       });
     }
@@ -733,6 +769,7 @@
     var abaCriar = porId("aba-criar");
     var abaEntrar = porId("aba-entrar");
     var olho = porId("conta-olho");
+    var sair = porId("conta-sair");
 
     if (abaCriar) {
       abaCriar.addEventListener("click", function () {
@@ -746,6 +783,48 @@
     }
     if (olho) olho.addEventListener("click", alternarSenha);
     if (form) form.addEventListener("submit", enviarConta);
+    if (sair) sair.addEventListener("click", sairDaConta);
+  }
+
+  /* Usa o sair() do módulo de sessão (que já encerra o signOut e avisa a UI).
+     Depois, o app volta ao estado normal de quem não tem sessão: formulário
+     entrar/criar. A sessão local já caiu mesmo se o servidor reclamar; nesse
+     caso o erro aparece no banner da própria vista. */
+  function sairDaConta() {
+    var api = sessaoApi();
+    if (!api || typeof api.sair !== "function") {
+      mostrarErroConta("O app não carregou a sessão. Feche e abra de novo.");
+      return;
+    }
+
+    var botao = porId("conta-sair");
+    if (botao) {
+      botao.disabled = true;
+      botao.textContent = "Saindo…";
+    }
+
+    Promise.resolve()
+      .then(function () {
+        return api.sair();
+      })
+      .then(function (resultado) {
+        definirModoConta("entrar");
+        irPara("conta");
+        if (resultado && resultado.ok === false) {
+          mostrarErroConta(resultado.erro);
+        }
+      })
+      .catch(function () {
+        definirModoConta("entrar");
+        irPara("conta");
+        mostrarErroConta("Não consegui sair agora. Tente de novo.");
+      })
+      .then(function () {
+        if (botao) {
+          botao.disabled = false;
+          botao.textContent = "Sair da conta";
+        }
+      });
   }
 
   function configurarAdmin() {
@@ -871,6 +950,11 @@
           var canais = raiz.SCCanais;
           if (canais && typeof canais.voltar === "function") canais.voltar();
           return; // grade → home
+        }
+        if (vista === "ia") {
+          var ia = raiz.SCIA;
+          if (ia && typeof ia.voltar === "function") ia.voltar();
+          return; // chat → home (a conversa continua em memória)
         }
         if (vista === "admin") {
           irPara("lista"); // painel do admin: volta pra lista

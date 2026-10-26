@@ -74,6 +74,15 @@
           <button type="submit" id="conta-enviar" class="botao botao--ouro">Criar conta</button>
         </form>
 
+        <!-- Sessão ativa: o botão de sair só aparece aqui, na vista da conta.
+             A navegação/estado de quem não tem sessão continua no app.js. -->
+        <div id="conta-logado" class="conta__logado" hidden>
+          <p id="conta-logado-email" class="conta__logado-email"></p>
+          <button type="button" id="conta-sair" class="botao botao--fantasma">
+            Sair da conta
+          </button>
+        </div>
+
         <p class="conta__rodape">Stronger Cast · episódios em vídeo, áudio e podcast</p>
       </div>
     </section>
@@ -132,6 +141,34 @@
       </header>
       <p id="canais-status" class="secao__status" role="status" hidden></p>
       <div id="canais-conteudo" class="secao__conteudo"></div>
+    </section>
+
+    <!-- IA Bíblica (26/10): chat com a API do Gemini. O módulo ia-biblica.js
+         cuida do histórico, da cascata de modelos e dos erros; aqui fica só a
+         moldura. A conversa vive em memória até "Limpar conversa". -->
+    <section id="ia" class="vista vista--ia" data-vista="ia"
+             aria-labelledby="ia-titulo" hidden>
+      <header class="secao__topo">
+        <button type="button" id="ia-voltar" class="secao__voltar">← Voltar</button>
+        <h1 id="ia-titulo" class="secao__titulo">IA Bíblica</h1>
+        <button type="button" id="ia-limpar" class="botao botao--fantasma">
+          Limpar conversa
+        </button>
+      </header>
+
+      <div id="ia-mensagens" class="ia-mensagens" role="log"
+           aria-live="polite" aria-label="Conversa com a IA Bíblica"></div>
+
+      <div class="ia-campo">
+        <input id="ia-pergunta" class="ia-campo__entrada" type="text"
+               autocomplete="off" autocapitalize="sentences"
+               placeholder="Pergunte sobre a Bíblia…" aria-label="Sua pergunta">
+        <button type="button" id="ia-enviar" class="botao botao--ouro">Enviar</button>
+      </div>
+
+      <p class="ia-nota">
+        As respostas vêm de uma IA — a Bíblia é a referência. Use discernimento.
+      </p>
     </section>
 
     <!-- Painel do admin (Task 9): só é exibido quando sessao.eAdmin() é true.
@@ -388,6 +425,8 @@
                 data-vista="devocionais">Devocionais</button>
         <button type="button" id="menu-canais" class="menu__item"
                 data-vista="canais">Canais</button>
+        <button type="button" id="menu-ia" class="menu__item"
+                data-vista="ia">Pergunte à Bíblia</button>
         <button type="button" id="admin-abrir" class="menu__item menu__item--admin"
                 data-vista="admin" hidden>Painel</button>
         <button type="button" id="conta-abrir" class="menu__item"
@@ -540,6 +579,7 @@
   <script src="js/biblia.js"></script>
   <script src="js/devocionais.js"></script>
   <script src="js/canais.js"></script>
+  <script src="js/ia-biblica.js"></script>
   <script src="js/player-video.js"></script>
   <script src="js/player-audio.js"></script>
   <script src="js/app.js"></script>

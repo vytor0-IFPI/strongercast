@@ -9,7 +9,7 @@
    cai no fallback de CSS que já existe. */
 "use strict";
 
-var CACHE = "sc-v1";
+var CACHE = "sc-v3";
 
 /* Tudo que o app precisa para abrir (e ler a Bíblia) sem rede.
    Caminhos relativos ao sw.js; "./" é a raiz do escopo (start_url). */
@@ -27,6 +27,7 @@ var PRECACHE = [
   "js/biblia.js",
   "js/devocionais.js",
   "js/canais.js",
+  "js/ia-biblica.js",
   "js/player-video.js",
   "js/player-audio.js",
   "js/app.js",
